@@ -3,139 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>블로그 콘텐츠 & 컨셉 자동 생성기</title>
+    <title>SEO 블로그 & 전략 자동 생성기</title>
     <style>
         body { font-family: 'Pretendard', sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; line-height: 1.6; }
         .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         h1 { font-size: 24px; text-align: center; color: #2c3e50; margin-bottom: 20px; }
-        label { font-weight: bold; display: block; margin-top: 15px; margin-bottom: 5px; }
-        select, input, textarea { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        textarea { resize: vertical; min-height: 120px; }
-        button { width: 100%; background: #2980b9; color: white; border: none; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px; transition: background 0.3s; }
-        button:hover { background: #3498db; }
+        label { font-weight: bold; display: block; margin-top: 15px; margin-bottom: 5px; color: #2980b9; }
+        select, input, textarea { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
+        textarea { resize: vertical; min-height: 100px; }
+        button { width: 100%; background: #2c3e50; color: white; border: none; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 15px; transition: background 0.3s; }
+        button:hover { background: #34495e; }
         .result-box { margin-top: 25px; padding: 15px; background: #e8f4f8; border-radius: 8px; display: none; }
         .result-box h3 { margin-top: 0; color: #2980b9; }
         #loader { text-align: center; display: none; margin-top: 15px; font-weight: bold; color: #e74c3c; }
-        textarea.output-area { background: #f9f9f9; min-height: 200px; font-family: monospace; font-size: 14px; }
+        textarea.output-area { background: #f9f9f9; min-height: 250px; font-family: monospace; font-size: 14px; border: 1px solid #bdc3c7; }
+        .hint { font-size: 12px; color: #7f8c8d; margin-top: -8px; margin-bottom: 10px; display: block; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🚀 SEO 블로그 생성기</h1>
+    <h1>🚀 SEO 블로그 & 전략 생성기 v2.0</h1>
     
-    <label for="apiKey">Gemini API 키 (보안 주의)</label>
+    <label for="apiKey">🔑 Gemini API 키</label>
     <input type="password" id="apiKey" placeholder="API 키를 입력하세요">
 
-    <label for="brandSelect">운영 브랜드 선택</label>
-    <select id="brandSelect">
-        <option value="general">일반 SEO 블로그</option>
-        <option value="re_enter">리엔터 (행사/중계 전문 에이전시)</option>
-        <option value="chew_jp">씹어먹는 일본어 (어학/교육)</option>
+    <label for="workMode">🛠️ 작업 모드 선택</label>
+    <select id="workMode" onchange="toggleFields()">
+        <option value="write_general">📝 일반 SEO 블로그 글쓰기</option>
+        <option value="write_re_enter">📝 [리엔터] 행사/중계 포스팅</option>
+        <option value="write_chew_jp">📝 [씹어먹는 일본어] 교육 포스팅</option>
+        <option value="strategy_mode">📊 [진단] 블로그 전략 & 키워드 캘린더 기획</option>
     </select>
 
-    <label for="keyword">타겟 키워드 (검색어)</label>
-    <input type="text" id="keyword" placeholder="예: 체육대회 MC 섭외, 기초 일본어 문법 등">
+    <div id="writingFields">
+        <label for="keyword">🎯 타겟 키워드 (검색어)</label>
+        <input type="text" id="keyword" placeholder="예: 체육대회 MC 섭외, 기초 일본어 문법 등">
 
-    <label for="sourceInfo">핵심 정보 소스 (내용, 레퍼런스, URL 등)</label>
-    <textarea id="sourceInfo" placeholder="AI가 이 내용을 바탕으로 글을 작성합니다. 요약본, 현장 스케치, 다뤄야 할 필수 내용 등을 적어주세요."></textarea>
+        <label for="referenceInfo">🏆 벤치마킹 상위 노출 글 (스타일/구조 모방용)</label>
+        <span class="hint">상위 노출된 블로그의 본문을 드래그해서 복사+붙여넣기 하세요. AI가 이 글의 구조와 문체를 벤치마킹합니다.</span>
+        <textarea id="referenceInfo" placeholder="상위 노출 글의 텍스트를 붙여넣어주세요. 없으면 비워두셔도 됩니다."></textarea>
 
-    <button onclick="generateBlog()">분석 및 글 생성하기</button>
+        <label for="sourceInfo">💡 핵심 정보 소스 (반드시 들어가야 할 내 정보)</label>
+        <span class="hint">현장 스케치, 내 연락처, 내 브랜드만의 특장점 등을 편하게 적어주세요.</span>
+        <textarea id="sourceInfo" placeholder="예: 어제 용인 스피드웨이에서 벤츠 행사 진행함. 현장 분위기 엄청 뜨거웠음."></textarea>
+    </div>
 
-    <div id="loader">AI가 시장을 분석하고 글을 작성 중입니다... (약 10~20초 소요)</div>
+    <div id="strategyFields" style="display: none;">
+        <label for="blogStatus">🔍 내 블로그 현재 상태 입력</label>
+        <span class="hint">블로그 URL, 주로 다루는 메인 주제, 최근 적었던 글 제목 3~4개, 겪고 있는 고민(예: 방문자가 안 늘어요)을 적어주세요.</span>
+        <textarea id="blogStatus" placeholder="예: https://blog.naver.com/myblog, 메인주제: 스포츠 행사 후기 및 섭외, 최근 글: 체육대회 후기... 고민: 특정 키워드만 유입되고 확장이 안됨."></textarea>
+    </div>
+
+    <button onclick="executeAction()">분석 및 실행하기</button>
+
+    <div id="loader">AI가 데이터를 분석하고 있습니다... (약 10~20초 소요)</div>
 
     <div class="result-box" id="resultContainer">
-        <h3>📊 1. 콘텐츠 기획 및 컨셉 분석</h3>
-        <textarea id="analysisOutput" class="output-area" readonly></textarea>
+        <h3 id="resultTitle1">📊 1. 분석 및 기획</h3>
+        <textarea id="output1" class="output-area" readonly></textarea>
         
-        <h3 style="margin-top: 20px;">📝 2. 완성된 블로그 본문 (HTML)</h3>
-        <textarea id="blogOutput" class="output-area" readonly></textarea>
+        <h3 id="resultTitle2" style="margin-top: 20px;">📝 2. 결과물 (HTML 또는 캘린더)</h3>
+        <textarea id="output2" class="output-area" readonly></textarea>
     </div>
 </div>
 
 <script>
-    async function generateBlog() {
+    // 모드에 따라 입력칸 보이기/숨기기
+    function toggleFields() {
+        const mode = document.getElementById('workMode').value;
+        if (mode === "strategy_mode") {
+            document.getElementById('writingFields').style.display = 'none';
+            document.getElementById('strategyFields').style.display = 'block';
+        } else {
+            document.getElementById('writingFields').style.display = 'block';
+            document.getElementById('strategyFields').style.display = 'none';
+        }
+    }
+
+    async function executeAction() {
         const apiKey = document.getElementById('apiKey').value;
-        const brand = document.getElementById('brandSelect').value;
-        const keyword = document.getElementById('keyword').value;
-        const sourceInfo = document.getElementById('sourceInfo').value;
+        const mode = document.getElementById('workMode').value;
         
-        if(!apiKey || !keyword) {
-            alert("API 키와 타겟 키워드를 입력해주세요.");
-            return;
+        if(!apiKey) {
+            alert("API 키를 입력해주세요."); return;
         }
 
         document.getElementById('loader').style.display = 'block';
         document.getElementById('resultContainer').style.display = 'none';
 
-        // 1. 브랜드별 프롬프트 분기 세팅
-        let personaContext = "";
-        let formatRules = "";
+        let prompt = "";
 
-        if (brand === "re_enter") {
-            personaContext = "당신은 스포츠 캐스터이자 현장 행사 MC 전문 에이전시를 운영하는 대표입니다. 뉴스 앵커와 같은 정형화된 톤보다는, 생동감 있는 현장 중계 경험과 실전 행사 진행의 전문성을 강조하는 페르소나를 유지해야 합니다.";
-            formatRules = "제공된 '정보 소스'를 바탕으로 현장의 생생함과 섭외 시의 전문적인 기대 효과를 강조하여 SEO에 맞게 작성하세요. <h2>, <h3> 등의 태그를 사용하여 가독성을 높이세요.";
-        } else if (brand === "chew_jp") {
-            personaContext = "당신은 체계적인 일본어 교육 브랜드의 기획자이자 대표입니다. 직접 가르치는 강사가 아니라, 전문 코치진이 교육하는 시스템을 총괄하고 수강생의 동기부여를 돕는 역할을 합니다.";
-            formatRules = `
-            반드시 다음 HTML 구조와 요소를 지켜서 작성해야 합니다:
-            1. '이강준의 씹어먹는 일본어' 브랜딩 문구를 포함할 것.
-            2. 검색이 잘 되는 매력적인 제목(Title)과 시선을 끄는 후킹(Hooking) 도입부.
-            3. 본문 내에 박스 형태의 접속 정보(안내 멘트 등)를 넣을 것.
-            4. 일본어 문법/표현에 대한 **예문 10개** (반드시 한국어 해석과 핵심 단어 볼드처리 포함).
-            5. 핵심 단어 정리 섹션 포함.
-            6. 본문 중간 적절한 위치에 구글 애드센스 코드가 들어갈 자리() 삽입.
-            7. 글 하단 푸터(Footer) 영역에 가벼운 복습 퀴즈와 공식 카페 링크 유도 문구를 포함할 것.
+        if (mode === "strategy_mode") {
+            const blogStatus = document.getElementById('blogStatus').value;
+            prompt = `
+            당신은 대한민국 최고 수준의 네이버/티스토리 전문 SEO 컨설턴트입니다.
+            사용자가 입력한 블로그 상태: [ ${blogStatus} ]
+            
+            위 정보를 분석하여 다음 두 가지를 구분해서 제공하세요.
+
+            ---진단 및 방향성---
+            1. 현재 블로그 주제의 수익성 및 확장성 평가
+            2. 방문자 체류시간과 지수를 높이기 위해 보완해야 할 콘텐츠 전략 3가지
+
+            ---7일 키워드 캘린더---
+            현재 주제를 바탕으로 당장 내일부터 매일 포스팅할 수 있는 '연관/세부 키워드' 7일 치 계획표를 작성하세요.
+            (Day 1 ~ Day 7 형식으로, '메인 키워드 - 타겟 고객층 - 글의 목적'을 명시할 것)
             `;
+            document.getElementById('resultTitle1').innerText = "📊 1. 블로그 진단 및 SEO 방향성";
+            document.getElementById('resultTitle2').innerText = "📅 2. 7일 콘텐츠 및 키워드 캘린더";
+            
         } else {
-            personaContext = "당신은 10년 차 전문 SEO 마케터이자 콘텐츠 기획자입니다.";
-            formatRules = "H2, H3, 리스트 태그를 활용하여 가독성이 뛰어난 SEO 최적화 HTML 구조로 작성하세요.";
+            const keyword = document.getElementById('keyword').value;
+            const referenceInfo = document.getElementById('referenceInfo').value;
+            const sourceInfo = document.getElementById('sourceInfo').value;
+            
+            let personaContext = "당신은 10년 차 전문 SEO 마케터이자 콘텐츠 기획자입니다.";
+            let formatRules = "H2, H3, 리스트 태그를 활용하여 가독성이 뛰어난 SEO 최적화 HTML 구조로 작성하세요.";
+
+            if (mode === "write_re_enter") {
+                personaContext = "당신은 스포츠 캐스터이자 현장 행사 MC 전문 에이전시를 운영하는 대표입니다. 뉴스 앵커와 같은 정형화된 톤보다는, 생동감 있는 현장 중계 경험과 실전 행사 진행의 전문성을 강조하는 페르소나를 유지해야 합니다.";
+                formatRules = "제공된 '정보 소스'를 바탕으로 현장의 생생함과 섭외 시의 전문적인 기대 효과를 강조하여 SEO에 맞게 작성하세요. <h2>, <h3> 등의 태그를 사용하세요.";
+            } else if (mode === "write_chew_jp") {
+                personaContext = "당신은 체계적인 일본어 교육 브랜드의 기획자이자 대표입니다. 직접 가르치는 강사가 아니라, 전문 코치진이 교육하는 시스템을 총괄하고 수강생의 동기부여를 돕는 역할을 합니다.";
+                formatRules = `
+                반드시 다음 HTML 구조를 지켜서 작성해야 합니다:
+                1. '이강준의 씹어먹는 일본어' 브랜딩 문구 포함.
+                2. 검색이 잘 되는 제목(Title)과 후킹 도입부.
+                3. 박스 형태의 접속 정보/안내.
+                4. 일본어 문법/표현 예문 10개 (한국어 해석 및 핵심 단어 볼드처리 포함).
+                5. 단어 정리 섹션.
+                6. 자리 삽입.
+                7. 하단 복습 퀴즈 및 공식 카페 링크.
+                `;
+            }
+
+            let refInstruction = referenceInfo ? `\n[레퍼런스 분석 지시]\n제공된 벤치마킹 글의 목차 구조, 문단 나누기, 강조 표현 방식 등을 딥러닝하여 작성할 글의 뼈대로 삼으세요. 단, 내용은 절대 표절하지 말고 사용자의 정보 소스를 활용해 새로 창조하세요.` : "";
+
+            prompt = `
+            ${personaContext}
+            
+            [작업 지시사항]
+            타겟 키워드: '${keyword}'
+            벤치마킹할 상위 글: '${referenceInfo}'
+            내 핵심 정보 소스: '${sourceInfo}'
+            ${refInstruction}
+
+            위 내용을 바탕으로 다음 두 가지를 순서대로 명확히 구분하여 출력해주세요.
+
+            ---분석 및 기획---
+            1. 경쟁 글(벤치마킹) 분석을 통한 차별화 포인트 도출
+            2. 추천 목차 구조
+
+            ---본문 HTML---
+            ${formatRules}
+            (마크다운 \`\`\`html 블록 안에 작성된 완성된 코드만 출력할 것)
+            `;
+            document.getElementById('resultTitle1').innerText = "📊 1. 콘텐츠 기획 및 컨셉 분석";
+            document.getElementById('resultTitle2').innerText = "📝 2. 완성된 블로그 본문 (HTML)";
         }
 
-        // 2. 통합 프롬프트 생성 (분석 + 작성 한 번에 처리하여 API 호출 최소화)
-        const prompt = `
-        ${personaContext}
-        
-        [작업 지시사항]
-        타겟 키워드: '${keyword}'
-        사용자가 제공한 핵심 정보 소스: '${sourceInfo}'
-
-        위 키워드와 정보 소스를 바탕으로 다음 두 가지를 순서대로 명확히 구분하여 출력해주세요.
-
-        ---분석 및 기획---
-        1. 현재 이 키워드로 검색하는 사람들의 검색 의도(Intent) 파악.
-        2. 제공된 정보 소스를 활용하여 경쟁 글과 차별화할 수 있는 '콘텐츠 컨셉(Angle)'.
-        3. 추천 목차.
-
-        ---본문 HTML---
-        ${formatRules}
-        (마크다운 \`\`\`html 블록 안에 작성된 완성된 코드만 출력할 것)
-        `;
-
         try {
+            // gemini-1.5-flash 모델을 사용하여 속도와 안정성 확보
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
             });
 
+            if (!response.ok) {
+                throw new Error(`API 요청 실패 (상태 코드: ${response.status})`);
+            }
+
             const data = await response.json();
             const textResult = data.candidates[0].content.parts[0].text;
 
-            // 결과 파싱 (분석 부분과 HTML 부분을 정규식으로 분리)
-            const htmlMatch = textResult.match(/```html\n([\s\S]*?)```/);
-            let htmlContent = htmlMatch ? htmlMatch[1] : "HTML 코드를 추출하지 못했습니다. 결과를 다시 확인해주세요.";
-            let analysisContent = textResult.replace(/```html\n[\s\S]*?```/, '').trim();
+            if (mode === "strategy_mode") {
+                const parts = textResult.split("---7일 키워드 캘린더---");
+                document.getElementById('output1').value = parts[0] ? parts[0].replace("---진단 및 방향성---", "").trim() : "분석 결과를 불러오지 못했습니다.";
+                document.getElementById('output2').value = parts[1] ? parts[1].trim() : textResult;
+            } else {
+                const htmlMatch = textResult.match(/```html\n([\s\S]*?)```/);
+                let htmlContent = htmlMatch ? htmlMatch[1] : "HTML 코드를 추출하지 못했습니다.";
+                let analysisContent = textResult.replace(/```html\n[\s\S]*?```/, '').replace("---본문 HTML---", "").trim();
 
-            document.getElementById('analysisOutput').value = analysisContent;
-            document.getElementById('blogOutput').value = htmlContent;
+                document.getElementById('output1').value = analysisContent.replace("---분석 및 기획---", "").trim();
+                document.getElementById('output2').value = htmlContent;
+            }
             
             document.getElementById('loader').style.display = 'none';
             document.getElementById('resultContainer').style.display = 'block';
 
         } catch (error) {
             console.error("API 호출 에러:", error);
-            alert("글을 생성하는 중 오류가 발생했습니다. API 키나 네트워크 상태를 확인해주세요.");
+            alert("오류가 발생했습니다. API 키가 정확한지, 혹시 공백이 들어가지 않았는지 확인해주세요.\n(에러 내용: " + error.message + ")");
             document.getElementById('loader').style.display = 'none';
         }
     }
