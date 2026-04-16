@@ -23,7 +23,7 @@
 <body>
 
 <div class="container">
-    <h1>🚀 SEO 블로그 & 전략 생성기 v2.3</h1>
+    <h1>🚀 SEO 블로그 & 전략 생성기 v2.4</h1>
     
     <label for="apiKey">🔑 Gemini API 키</label>
     <input type="password" id="apiKey" placeholder="API 키를 입력하세요">
@@ -81,7 +81,9 @@
     }
 
     async function executeAction() {
-        const apiKey = document.getElementById('apiKey').value;
+        // API 키 앞뒤의 공백(띄어쓰기)을 완벽하게 자동 제거합니다.
+        const rawKey = document.getElementById('apiKey').value;
+        const apiKey = rawKey.trim();
         const mode = document.getElementById('workMode').value;
         
         if(!apiKey) {
@@ -128,16 +130,18 @@
         }
 
         try {
-            // 가장 똑똑하고 안정적인 핵심 모델인 gemini-1.5-pro 로 수정 적용
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`;
+            // 현재 구글의 가장 안정적인 최신 표준 모델인 gemini-2.0-flash 로 전면 교체
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
             });
 
+            // 🚨 구글 서버가 튕겨낼 경우, 상세 이유를 가로채서 화면에 띄웁니다.
             if (!response.ok) {
-                throw new Error(`API 요청 실패 (상태 코드: ${response.status})`);
+                const errorText = await response.text();
+                throw new Error(`(상태 코드: ${response.status})\n\n[구글 서버의 상세 거절 사유]\n${errorText}`);
             }
 
             const data = await response.json();
@@ -161,13 +165,7 @@
 
         } catch (error) {
             console.error("API 호출 에러 상세:", error);
-            let errorMsg = "오류가 발생했습니다! (에러 내용: " + error.message + ")\n";
-            if (error.message.includes("503")) {
-                errorMsg += "\n🚨 현재 구글 AI 서버에 전 세계적으로 트래픽이 폭주하여 접속이 지연되고 있습니다. 1~2분 뒤에 다시 버튼을 눌러주세요!";
-            } else {
-                errorMsg += "\nAPI 키를 다시 확인해주세요.";
-            }
-            alert(errorMsg);
+            alert("🚨 오류 발생!\n\n" + error.message + "\n\n이 메시지를 그대로 캡처해서 보여주세요. 구글이 왜 막는지 1초 만에 알 수 있습니다.");
             document.getElementById('loader').style.display = 'none';
         }
     }
