@@ -11,7 +11,7 @@
         label { font-weight: bold; display: block; margin-top: 15px; margin-bottom: 5px; color: #2980b9; }
         select, input, textarea { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
         textarea { resize: vertical; min-height: 100px; }
-        button { width: 100%; background: #2c3e50; color: white; border: none; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: margin-top: 15px; transition: background 0.3s; }
+        button { width: 100%; background: #2c3e50; color: white; border: none; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 15px; transition: background 0.3s; }
         button:hover { background: #34495e; }
         .result-box { margin-top: 25px; padding: 15px; background: #e8f4f8; border-radius: 8px; display: none; }
         .result-box h3 { margin-top: 0; color: #2980b9; }
@@ -23,7 +23,7 @@
 <body>
 
 <div class="container">
-    <h1>🚀 SEO 블로그 & 전략 생성기 v2.2</h1>
+    <h1>🚀 SEO 블로그 & 전략 생성기 v2.3</h1>
     
     <label for="apiKey">🔑 Gemini API 키</label>
     <input type="password" id="apiKey" placeholder="API 키를 입력하세요">
@@ -128,8 +128,8 @@
         }
 
         try {
-            // 구글의 최신 모델인 gemini-2.5-flash 로 강제 업데이트 적용 (404 에러 원천 차단)
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+            // 가장 똑똑하고 안정적인 핵심 모델인 gemini-1.5-pro 로 수정 적용
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`;
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -137,8 +137,6 @@
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
-                console.error("서버 응답 에러:", errorData);
                 throw new Error(`API 요청 실패 (상태 코드: ${response.status})`);
             }
 
@@ -163,7 +161,13 @@
 
         } catch (error) {
             console.error("API 호출 에러 상세:", error);
-            alert("오류가 발생했습니다! (에러 내용: " + error.message + ")\nAPI 키를 다시 확인해주세요.");
+            let errorMsg = "오류가 발생했습니다! (에러 내용: " + error.message + ")\n";
+            if (error.message.includes("503")) {
+                errorMsg += "\n🚨 현재 구글 AI 서버에 전 세계적으로 트래픽이 폭주하여 접속이 지연되고 있습니다. 1~2분 뒤에 다시 버튼을 눌러주세요!";
+            } else {
+                errorMsg += "\nAPI 키를 다시 확인해주세요.";
+            }
+            alert(errorMsg);
             document.getElementById('loader').style.display = 'none';
         }
     }
